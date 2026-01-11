@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARDA COFFEE - Table QR Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        @media print {
+            .no-print { display: none; }
+            .print-break { page-break-inside: avoid; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body class="bg-stone-100 p-4 md:p-10">
+
+    <div class="max-w-4xl mx-auto no-print bg-white p-8 rounded-[2.5rem] shadow-2xl mb-10 border border-stone-200">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 bg-stone-900 rounded-2xl flex items-center justify-center text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black text-stone-800 uppercase tracking-tighter">QR Table Generator</h1>
+                <p class="text-stone-500 text-sm">Buat stiker meja otomatis untuk ARDA COFFEE</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-xs font-black text-stone-400 uppercase tracking-widest mb-2">Base URL Website</label>
+                <input type="text" id="baseUrl" value="https://FarhanJoyi.github.io/arda-coffee/" 
+                    class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-all">
+            </div>
+            <div>
+                <label class="block text-xs font-black text-stone-400 uppercase tracking-widest mb-2">Rentang Meja (Misal: 1-10)</label>
+                <div class="flex gap-2">
+                    <input type="number" id="startTable" value="1" class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl text-sm outline-none">
+                    <span class="flex items-center text-stone-400 font-bold">sampai</span>
+                    <input type="number" id="endTable" value="10" class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl text-sm outline-none">
+                </div>
+            </div>
+        </div>
+
+        <button onclick="generateQRs()" class="w-full mt-8 bg-stone-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/20 active:scale-95">
+            Generate Stiker Meja
+        </button>
+        
+        <p class="text-[10px] text-center mt-4 text-stone-400 font-medium italic">Klik "Generate" lalu gunakan Ctrl + P untuk cetak stiker.</p>
+    </div>
+
+    <!-- AREA PRINT -->
+    <div id="printArea" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <!-- Kartu akan muncul di sini -->
+    </div>
+
+    <script>
+        function generateQRs() {
+            const baseUrl = document.getElementById('baseUrl').value;
+            const start = parseInt(document.getElementById('startTable').value);
+            const end = parseInt(document.getElementById('endTable').value);
+            const container = document.getElementById('printArea');
+            
+            container.innerHTML = ''; // Clear previous
+
+            for (let i = start; i <= end; i++) {
+                const finalUrl = baseUrl + (baseUrl.includes('?') ? '&' : '?') + 'meja=' + i;
+                
+                // Buat Elemen Card
+                const card = document.createElement('div');
+                card.className = "print-break bg-white border-[6px] border-stone-900 rounded-[3rem] p-10 flex flex-col items-center shadow-xl text-center relative overflow-hidden";
+                
+                card.innerHTML = `
+                    <div class="absolute top-0 left-0 w-full h-2 bg-amber-500"></div>
+                    <h2 class="text-stone-400 text-xs font-black uppercase tracking-[0.3em] mb-2">Selamat Datang di</h2>
+                    <h1 class="text-3xl font-black text-stone-900 tracking-tighter uppercase mb-6 leading-none">ARDA COFFEE</h1>
+                    
+                    <div class="bg-stone-50 p-6 rounded-[2rem] border-2 border-stone-100 mb-6">
+                        <div id="qrcode-${i}" class="mx-auto"></div>
+                    </div>
+
+                    <div class="bg-stone-900 text-white px-8 py-3 rounded-full mb-6">
+                        <span class="text-lg font-black uppercase tracking-widest">NOMOR MEJA ${i}</span>
+                    </div>
+
+                    <p class="text-stone-500 text-sm font-bold leading-tight">
+                        Scan QR Code di atas<br>
+                        <span class="text-amber-700 uppercase text-xs tracking-widest">Untuk Memesan Menu</span>
+                    </p>
+                    
+                    <div class="mt-8 flex items-center gap-2 opacity-30">
+                        <div class="w-10 h-[1px] bg-stone-400"></div>
+                        <span class="text-[8px] font-black uppercase tracking-widest">The Real Roastery</span>
+                        <div class="w-10 h-[1px] bg-stone-400"></div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+
+                // Generate QR Code ke dalam div yang baru dibuat
+                new QRCode(document.getElementById(`qrcode-${i}`), {
+                    text: finalUrl,
+                    width: 180,
+                    height: 180,
+                    colorDark : "#1c1917", // stone-900
+                    colorLight : "#f9f8f7", // stone-50
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+        }
+
+        // Jalankan sekali saat load
+        window.onload = generateQRs;
+    </script>
+</body>
+</html>
